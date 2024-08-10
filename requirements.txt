@@ -1,0 +1,21 @@
+docker~=7.0.0
+python-dotenv~=1.0.0
+openai~=1.37.1
+tqdm
+nbformat~=5.9.2
+ipython~=8.18.1
+websocket-client~=1.7.0
+nbconvert~=7.16.1
+modal==0.62.65
+tiktoken~=0.7.0
+jupyter~=1.0.0
+together>=1.1.0
+datasets~=2.21.0
+
+litellm~=1.42.5
+
+# for swe-agent
+tenacity
+simple_parsing
+anthropic[bedrock]
+config
