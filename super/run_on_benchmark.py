@@ -13,7 +13,7 @@ import datasets
 from super.env.edit_aci import EditACI
 from super.agent import Agent
 from super.env import Environment
-from super.evaluate_dataset import evaluate, evaluate_checkpoints, evaluate_entrypoint
+from super.evaluate_dataset import get_metrics
 from super.run_single_query import add_experiment_args
 
 
@@ -135,38 +135,7 @@ def run_single_task(task, args, run_id, rank):
             else:
                 raise ValueError
 
-            metrics = {
-                "submitted": 0,
-                "output_match": None,
-                "landmarks": None,
-                "entrypoint": None,
-            }
-
-            trajectory = env.get_history()
-            last_action = trajectory[-1].action
-
-            submission = None
-            if last_action["type"] == "submit" and "content" in last_action:
-                if last_action["content"]:
-                    metrics["submitted"] = 1
-                    submission = last_action["content"]
-
-            print(f"Task {task_name}\n****agent submission: {submission}**")
-
-            gold_answer = json.loads(task["answer"]) if task.get("answer") else None
-            if gold_answer:
-                print(f"Task {task_name} gold answer: {gold_answer}")
-                metrics["output_match"] = evaluate(gold_answer, submission)
-
-                print(f"Task {task_name} output match metric: {metrics['output_match']}")
-
-            gold_landmarks = task.get("landmarks")
-            if gold_landmarks:
-                metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
-
-            gold_entrypoint = task.get("entrypoint")
-            if gold_entrypoint:
-                metrics["entrypoint"] = evaluate_entrypoint(gold_entrypoint, trajectory)
+            metrics = get_metrics(env.get_history(), task)
 
             with open(output_path / "metrics.json", "w") as f:
                 json.dump(metrics, f, indent=4)

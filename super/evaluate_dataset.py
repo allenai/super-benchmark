@@ -1,8 +1,17 @@
+import argparse
+import json
 import os
 import re
 from datetime import datetime
+from glob import glob
 from typing import List, Dict, Union
 
+import datasets
+import pandas as pd
+from tqdm import tqdm
+
+from super.agent.agent import AgentStep
+from super.agent.utils import logger
 from super.env.environment import EnvironmentStep
 
 
@@ -34,7 +43,7 @@ def evaluate(predicted, gold, float_epsilon: float = 1e-2) -> float:
     raise NotImplementedError
 
 
-def evaluate_checkpoints(gold_checkpoints: List[Dict], agent_history: List[Union[EnvironmentStep, Dict]], verbose: bool = False) -> float:
+def evaluate_checkpoints(gold_checkpoints: List[Dict], agent_history: List[Union[EnvironmentStep, Dict]]) -> float:
     """
     Evaluate if the agent has gone through some gold checkpoints by looking for certain outputs in the agent's history,
     e.g. "Training completed..."
@@ -53,8 +62,7 @@ def evaluate_checkpoints(gold_checkpoints: List[Dict], agent_history: List[Union
         if always_executed:
             continue
         checkpoints_hit.append(hit)
-        if verbose:
-            print(f"Checkpoint {checkpoint['check_type']} '{checkpoint['contents']}': {'Hit' if hit else 'Miss'}")
+        logger.info(f"Checkpoint '{checkpoint}': {'Hit' if hit else 'Miss'}")
     return sum(checkpoints_hit) / len(checkpoints_hit)
 
 
@@ -100,7 +108,94 @@ def evaluate_entrypoint(entrypoint: str, agent_history: List[Union[EnvironmentSt
 
             return 1.0
         else:
-            print("Skipping")
+            logger.warning(f"Unsupported entrypoint file type: {entrypoint}")
             return None
 
     return 0.0
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--trajectories-dir", "-t", required=True)
+    parser.add_argument("--set", type=str, choices=["Expert", "Masked", "Auto"], required=True)
+    return parser.parse_args()
+
+
+def get_metrics(trajectory, task):
+    metrics = {
+        "submitted": 0,
+        "output_match": None,
+        "landmarks": None,
+        "entrypoint": None,
+    }
+
+    last_action = trajectory[-1].action
+
+    submission = None
+    if last_action["type"] == "submit" and "content" in last_action:
+        if last_action["content"]:
+            metrics["submitted"] = 1
+            submission = last_action["content"]
+
+    task_name = task["task_id"]
+    print(f"Task {task_name}\n****agent submission: {submission}**")
+
+    gold_answer = json.loads(task["answer"]) if task.get("answer") else None
+    if gold_answer:
+        print(f"Task {task_name} gold answer: {gold_answer}")
+        metrics["output_match"] = evaluate(gold_answer, submission)
+
+        print(f"Task {task_name} output match metric: {metrics['output_match']}")
+
+    gold_landmarks = task.get("landmarks")
+    if gold_landmarks:
+        metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
+
+    gold_entrypoint = task.get("entrypoint")
+    if gold_entrypoint:
+        metrics["entrypoint"] = evaluate_entrypoint(gold_entrypoint, trajectory)
+
+    return metrics
+
+
+def run_evaluation():
+    args = parse_args()
+
+    tasks = datasets.load_dataset("allenai/super", split=args.set)
+    tasks = {task["task_id"]: task for task in tasks}
+
+    tasks_found_in_trajectory_path = glob(os.path.join(args.trajectories_dir, "*"))
+    if not tasks_found_in_trajectory_path:
+        raise ValueError(
+            f"No tasks found in the trajectory path: {args.trajectories_dir} ({os.path.abspath(args.trajectories_dir)})")
+
+    all_metrics = []
+    for task_dir in tqdm(tasks_found_in_trajectory_path):
+        if not os.path.exists(os.path.join(task_dir, "metadata.json")):
+            continue
+        metadata = json.load(open(os.path.join(task_dir, "metadata.json")))
+        task_name = metadata["task"]["task_id"]
+        task = tasks.get(task_name)
+
+        if not task:
+            logger.warning(f"Task {task_name} not found in the tasks file")
+            continue
+
+        logger.info(f"*** Task {task_name} ***")
+
+        if not os.path.exists(os.path.join(task_dir, "history.json")):
+            continue
+
+        with open(os.path.join(task_dir, "history.json")) as f:
+            trajectory = json.load(f)
+            trajectory = [AgentStep(**step) for step in trajectory["history"]]
+
+        all_metrics.append(get_metrics(trajectory, task))
+
+    df = pd.DataFrame(all_metrics)
+    print(df.mean())
+
+
+
+if __name__ == "__main__":
+    run_evaluation()
