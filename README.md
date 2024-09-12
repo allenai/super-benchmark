@@ -5,7 +5,7 @@
     <p>
     A benchmark and resources for evaluation of LLM agents on setting up and executing ML/NLP tasks from research repositories in the GitHub wild. 
     </p>
-    <!--[<a href="">arxiv link here</a>]-->
+    [<a href="https://arxiv.org/pdf/2409.07440">arxiv</a>]
 </div>
 
 ---
