@@ -14,7 +14,7 @@
 
 Dataset tasks are available in [HuggingFace Hub 🤗](https://huggingface.co/datasets/allenai/super).
 
-We provide three sets: Expert (45 problems), Scenarios (152) and AutoGen (602).
+We provide three sets: Expert (45 problems), Masked (152) and AutoGen (602).
 
 Agents trajectories from the paper's experiments are available [here](trajectories).
 
