@@ -32,7 +32,9 @@ class Environment(ABC):
 
     def step(self, action: Dict[str, str]) -> EnvironmentStep:
         execution_start_time = datetime.datetime.now()
-        if action["type"] in self._action_types:
+        if action["type"] == "exception":
+            return EnvironmentStep(action, "", True)
+        elif action["type"] in self._action_types:
             observation, done = self._action_types[action["type"]].step(action)
         else:
             observation, done = self._step(action)

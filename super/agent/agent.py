@@ -210,7 +210,8 @@ class Agent:
             # agent did not emit an action, must be a pre-executed cell
             self.history.append(AgentStep("[pre-executed by user]", step.action, observation))
 
-        self._execution_times.append((step.execution_end_time - step.execution_start_time).total_seconds())
+        if step.execution_start_time and step.execution_end_time:
+            self._execution_times.append((step.execution_end_time - step.execution_start_time).total_seconds())
 
         if self._logs_output_dir:
             os.makedirs(self._logs_output_dir, exist_ok=True)
