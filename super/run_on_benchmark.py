@@ -150,7 +150,7 @@ def run_dataset():
 
     run_id = f"{args.run_name}_{args.model_engine.split('/')[-1]}_{args.agent_name}_{args.set}"
 
-    tasks = datasets.load_dataset("allenai/super", split=args.set)
+    tasks = list(datasets.load_dataset("allenai/super", split=args.set))
 
     if args.tasks_ids:
         tasks = [task for task in tasks if task["task_id"] in args.tasks_ids]
