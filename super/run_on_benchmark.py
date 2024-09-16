@@ -95,9 +95,9 @@ def run_single_task(task, args, run_id, rank):
         stderr_context = contextlib.redirect_stderr(stdout_file)
 
     if args.set == "Masked":
-        max_token_limit = int(200_000 * args.budget_multiplier)  # $0.5 for gpt-4o-2024-08-06
+        max_token_limit = int(400_000 * args.budget_multiplier)  # $1 for gpt-4o-2024-08-06
     else:
-        max_token_limit = int(300_000 * args.budget_multiplier)  # $0.75 for gpt-4o-2024-08-06
+        max_token_limit = int(600_000 * args.budget_multiplier)  # $1.5 for gpt-4o-2024-08-06
 
     with stdout_context, stderr_context:
         if args.env_backend == "modal":
