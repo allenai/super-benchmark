@@ -6,7 +6,7 @@ from typing import Tuple, Dict
 import requests
 from websocket import create_connection, WebSocketTimeoutException
 
-from super.agent.utils import logger
+from super.utils import logger
 from super.env import Environment
 from super.env.utils import timeout_call
 

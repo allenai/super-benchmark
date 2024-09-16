@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 from IPython.core.interactiveshell import InteractiveShell
 import sys
 
-from super.agent.utils import logger
+from super.utils import logger
 from super.env import Environment
 
 

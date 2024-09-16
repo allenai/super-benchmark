@@ -11,7 +11,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from super.agent.agent import AgentStep
-from super.agent.utils import logger
+from super.utils import logger
 from super.env.environment import EnvironmentStep
 
 

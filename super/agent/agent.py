@@ -7,7 +7,8 @@ from typing import List
 import yaml
 
 from super.agent.llm_utils import generate_response
-from super.agent.utils import logger, clean_observation
+from super.agent.utils import clean_observation
+from super.utils import logger
 from super.env.environment import EnvironmentStep
 from dataclasses import dataclass
 

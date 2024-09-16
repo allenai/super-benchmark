@@ -4,7 +4,7 @@ import time
 from time import sleep
 from urllib.parse import urlparse
 
-from super.agent.utils import logger
+from super.utils import logger
 from super.env.jupyter_env import JupyterEnv
 from super.env.start_modal_app import run_jupyter_in_modal, get_modal_url_queue
 

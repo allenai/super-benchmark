@@ -1,7 +1,7 @@
 import signal
 from typing import Any, Callable
 
-from super.agent.utils import logger
+from super.utils import logger
 
 
 def timeout_call(

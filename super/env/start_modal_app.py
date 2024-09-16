@@ -3,7 +3,7 @@ import subprocess
 import time
 import modal
 
-from super.agent.utils import logger
+from super.utils import logger
 
 DEMO_MODE = False
 
