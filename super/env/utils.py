@@ -1,6 +1,8 @@
 import signal
 from typing import Any, Callable
 
+from super.agent.utils import logger
+
 
 def timeout_call(
         function: Callable[..., Any],
@@ -11,7 +13,7 @@ def timeout_call(
     if timeout_seconds is None:
         return function(*args, **kwargs)
     if not hasattr(signal, 'SIGALRM'):
-        print("*** WARNING: timeout_call is not supported on this platform. ***")
+        logger.warning("*** WARNING: timeout_call is not supported on this platform. ***")
         return function(*args, **kwargs)
 
     timeout_seconds = int(timeout_seconds)

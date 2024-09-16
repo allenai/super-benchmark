@@ -4,6 +4,7 @@ import time
 from time import sleep
 from urllib.parse import urlparse
 
+from super.agent.utils import logger
 from super.env.jupyter_env import JupyterEnv
 from super.env.start_modal_app import run_jupyter_in_modal, get_modal_url_queue
 
@@ -49,7 +50,7 @@ class ModalEnv(JupyterEnv):
         try:
             self.modal_host = modal_url_queue.get(timeout=180)
         except Exception as e:
-            print("Unable to get the modal host from the queue. Exiting...")
+            logger.error("Unable to get the modal host from the queue. Exiting...")
             raise e
         # Wait for the server to start. If it doesn't start in 3 minutes, raise an exception
         max_sleep = 180

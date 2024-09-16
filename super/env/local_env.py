@@ -5,6 +5,7 @@ from typing import Dict, Tuple
 from IPython.core.interactiveshell import InteractiveShell
 import sys
 
+from super.agent.utils import logger
 from super.env import Environment
 
 
@@ -17,7 +18,7 @@ class IPythonEnv(Environment):
     def __init__(self):
         super().__init__()
 
-        print("%" * 20 + " WARNING " + "%" * 20 +
+        logger.warning("%" * 20 + " WARNING " + "%" * 20 +
               "\nIPythonEnv is not a secure environment. Use with caution.")
         self.shell = InteractiveShell()
 

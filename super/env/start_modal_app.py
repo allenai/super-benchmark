@@ -3,6 +3,8 @@ import subprocess
 import time
 import modal
 
+from super.agent.utils import logger
+
 DEMO_MODE = False
 
 
@@ -63,21 +65,21 @@ def run_jupyter_in_modal(jupyter_token: str, rank=0):
             env={**os.environ},
         )
 
-        print(f"Jupyter available at => {tunnel.url}")
+        logger.info(f"Jupyter available at => {tunnel.url}")
         modal_url_queue = get_modal_url_queue(rank)
         # Clean the queue; just in case there are any leftover urls
         while modal_url_queue.len():
             url = modal_url_queue.get()
-            print("Found extra url {} in the queue: {}. Deleting!".format(url,
+            logger.info("Found extra url {} in the queue: {}. Deleting!".format(url,
                                                                           modal_url_queue))
         modal_url_queue.put(tunnel.url)
         try:
             end_time = time.time() + modal_timeout
             while time.time() < end_time:
                 time.sleep(5)
-            print(f"Reached end of {modal_timeout} second timeout period. Exiting...")
+            logger.error(f"Reached end of {modal_timeout} second timeout period. Exiting...")
         except KeyboardInterrupt:
-            print("Exiting...")
+            logger.info("Exiting...")
         finally:
             jupyter_process.kill()
 

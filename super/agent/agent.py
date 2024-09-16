@@ -130,10 +130,7 @@ class Agent:
                 else:
                     provided_observation = step.observation
 
-                if step.action and step.action["type"] == "follow-up":
-                    assistant_response += f"Follow-up query: {step.action['content']}\n"
-                else:
-                    assistant_response += f"Thought: {step.thought}\nAction: {step.action.get('type')}\n<content>\n{step.action.get('content')}\n</content>\nObservation: ```\n{provided_observation}\n```\n"
+                assistant_response += f"Thought: {step.thought}\nAction: {step.action.get('type')}\n<content>\n{step.action.get('content')}\n</content>\nObservation: ```\n{provided_observation}\n```\n"
 
             if assistant_response:
                 prompt.append({"role": "assistant", "content": assistant_response})
@@ -158,15 +155,15 @@ class Agent:
         exception = None
 
         if self._max_total_cost and sum(self._turn_cost) > self._max_total_cost:
-            print(f"Total cost exceeded. Total cost is {sum(self._turn_cost)}, which exceeds the limit of {self._max_total_cost}")
+            logger.error(f"Total cost exceeded. Total cost is {sum(self._turn_cost)}, which exceeds the limit of {self._max_total_cost}")
             exception = "Total cost exceeded."
 
         if self._max_compute_time and sum(self._execution_times) > self._max_compute_time:
-            print(f"Total compute time exceeded. Total compute time is {sum(self._execution_times)}, which exceeds the limit of {self._max_compute_time}")
+            logger.error(f"Total compute time exceeded. Total compute time is {sum(self._execution_times)}, which exceeds the limit of {self._max_compute_time}")
             exception = "Total compute time exceeded."
 
         if self._max_context_tokens and sum(self._context_tokens_count) > self._max_context_tokens:
-            print(f"Total context tokens exceeded. Total context tokens is {sum(self._context_tokens_count)}, which exceeds the limit of {self._max_context_tokens}")
+            logger.error(f"Total context tokens exceeded. Total context tokens is {sum(self._context_tokens_count)}, which exceeds the limit of {self._max_context_tokens}")
             exception = "Total context tokens exceeded."
 
         if not exception:

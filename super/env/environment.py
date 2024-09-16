@@ -3,6 +3,7 @@ import datetime
 from abc import ABC, abstractmethod
 from typing import Dict, Tuple, List, Callable
 
+from super.agent.utils import logger
 from super.env.aci import ACI
 
 
@@ -70,7 +71,7 @@ class Environment(ABC):
                 try:
                     return ModalEnv(**kwargs)
                 except Exception as e:
-                    print("Failed to init Modal env. Retrying!")
+                    logger.error("Failed to init Modal env. Retrying!")
                     tries += 1
         else:
             raise ValueError(f"Invalid backend: {backend}")

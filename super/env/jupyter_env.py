@@ -6,6 +6,7 @@ from typing import Tuple, Dict
 import requests
 from websocket import create_connection, WebSocketTimeoutException
 
+from super.agent.utils import logger
 from super.env import Environment
 from super.env.utils import timeout_call
 
@@ -69,7 +70,7 @@ class JupyterEnv(Environment):
         self._jupyter_server = f"{self.host}:{self.server_port}" if self.server_port else self.host
         protocol = "https" if self.use_secure else "http"
         url = f"{protocol}://{self._jupyter_server}/api/kernels"
-        print(f"Creating a new kernel at {url}")
+        logger.info(f"Creating a new kernel at {url}")
 
         response = requests.post(url, headers=self._headers)
         if "id" not in json.loads(response.text):
@@ -145,9 +146,9 @@ class JupyterEnv(Environment):
                 status = "timeout"
                 break
             except BrokenPipeError as e:
-                print("Broken pipe error. Message history:")
+                logger.error("Broken pipe error. Message history:")
                 for msg in self._msgs_history:
-                    print(msg)
+                    logger.info(msg)
                 raise e
             if not recv_obj:
                 continue
@@ -162,7 +163,7 @@ class JupyterEnv(Environment):
                 break
             elif msg_type == "stream":
                 self._intermediate_output.append(rsp["content"]["text"])
-                print(rsp["content"]["text"])
+                logger.info(rsp["content"]["text"])
             elif msg_type == "execute_result":
                 self._intermediate_output.append(rsp["content"]["data"]["text/plain"])
 
@@ -181,7 +182,7 @@ class JupyterEnv(Environment):
                     last_message_id = self._get_msg_id_from_rsp(self._msgs_history[-2])
                     if execute_reply_msg_id - last_message_id > 1:
                         # timeout can now be short since last message was already received
-                        print("*** execute_reply was received before the last stream message. Continuing to receive messages until the last stream message is received. ***")
+                        logger.info("*** execute_reply was received before the last stream message. Continuing to receive messages until the last stream message is received. ***")
                         self.ws.settimeout(5)
                         continue
                 except Exception as e:
