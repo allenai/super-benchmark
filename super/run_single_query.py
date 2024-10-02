@@ -56,6 +56,8 @@ def run_single_query():
         else:
             raise ValueError(f"Invalid agent: {args.agent}")
 
+    agent.format_history_as_nb(str(output_path) + "/history.ipynb")
+    agent.format_history_as_html(str(output_path) + "/history.ipynb")
     last_action = env.get_history()[-1].action
     print(f"Agent submission/last action: {last_action}")
 

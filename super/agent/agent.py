@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import List
 
+import nbformat
 import yaml
 
 from super.agent.llm_utils import generate_response
@@ -226,3 +227,28 @@ class Agent:
                 "total_context_tokens_count": sum(self._context_tokens_count),
                 "total_response_tokens_count": sum(self._response_tokens_count),
             }, f, indent=4, default=str)
+
+    def format_history_as_nb(self, save_to_path: str = None):
+        nb = nbformat.v4.new_notebook()
+        nb.cells.append(nbformat.v4.new_markdown_cell(f"### Query\n{self._initial_task}"))
+        nb.cells.append(
+            nbformat.v4.new_markdown_cell(f"### Prompt\n<details>\n{self._build_prompt()[:-1]}\n</details>\n"))
+        for i, step in enumerate(self.history):
+            nb.cells.append(nbformat.v4.new_markdown_cell(f"### Step {i + 1}"))
+            nb.cells.append(nbformat.v4.new_markdown_cell(f"**Thought**: {step.thought}"))
+            nb.cells.append(nbformat.v4.new_markdown_cell(f"**Action ({step.action.get('type', '')})**:"))
+            nb.cells.append(nbformat.v4.new_code_cell(
+                source=str(step.action.get('content', '')),
+                outputs=[nbformat.v4.new_output(output_type="execute_result",
+                                                data={'text/plain': [step.observation]})]
+            ))
+
+        if save_to_path:
+            with open(save_to_path, "w", encoding="utf-8") as f:
+                nbformat.write(nb, f)
+
+        return nb
+
+    def format_history_as_html(self, nb_file_path):
+        import subprocess
+        subprocess.run(["jupyter", "nbconvert", "--to", "html", nb_file_path])
