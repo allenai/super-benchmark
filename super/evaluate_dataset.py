@@ -161,7 +161,7 @@ def get_metrics(trajectory, task):
 def run_evaluation():
     args = parse_args()
 
-    tasks = datasets.load_dataset("allenai/super", split=args.set)
+    tasks = datasets.load_dataset("allenai/super", args.set, split="all_examples")
     tasks = {task["task_id"]: task for task in tasks}
 
     tasks_found_in_trajectory_path = glob(os.path.join(args.trajectories_dir, "*"))
