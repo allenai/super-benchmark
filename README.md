@@ -5,7 +5,7 @@
     <p>
     A benchmark and resources for evaluation of LLM agents on setting up and executing ML/NLP tasks from research repositories in the GitHub wild. 
     </p>
-    [<a href="https://arxiv.org/pdf/2409.07440">arxiv</a>]
+    [<a href="https://arxiv.org/pdf/2409.07440">arXiv</a>] | [<a href="https://huggingface.co/spaces/allenai/super_leaderboard">Leaderboard</a>] | [<a href="https://huggingface.co/datasets/allenai/super">HF Dataset</a>]
 </div>
 
 ---
